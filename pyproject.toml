@@ -1,0 +1,61 @@
+[project]
+name = "reprobot"
+version = "0.1.0"
+description = "Turns GitHub bug reports into failing tests that prove the bug."
+readme = "README.md"
+license = "MIT"
+license-files = ["LICENSE"]
+authors = [{ name = "Omid Rasouli" }]
+requires-python = ">=3.14"
+dependencies = [
+    "pydantic>=2.14.3",
+    "pydantic-settings>=2.16.2",
+    "pyyaml>=6.0.3",
+]
+
+[build-system]
+requires = ["uv_build>=0.12.23,<0.13"]
+build-backend = "uv_build"
+
+# ---------- ruff: linter + formatter ----------
+[tool.ruff]
+line-length = 100
+target-version = "py314"
+
+[tool.ruff.lint]
+select = [
+    "E",   # pycodestyle errors
+    "F",   # pyflakes: unused imports, undefined names
+    "I",   # import sorting
+    "UP",  # use modern Python syntax
+    "B",   # bugbear: common bug patterns
+    "SIM", # simpler code suggestions
+]
+
+# ---------- mypy: type checker ----------
+[tool.mypy]
+python_version = "3.14"
+strict = true
+plugins = ["pydantic.mypy"]
+files = ["src", "tests"]
+exclude = ["tests/fixtures/"]
+
+# ---------- pytest ----------
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+# The demo repo has its own tests; they run in their own process, not in ours.
+norecursedirs = [".*", "build", "dist", "fixtures"]
+addopts = "-ra --strict-markers"
+markers = [
+    "live: calls a real LLM API (costs money, run only on request)",
+    "integration: needs Docker",
+]
+
+[dependency-groups]
+dev = [
+    "mypy>=2.4.1",
+    "pre-commit>=4.7.0",
+    "pytest>=9.2.0",
+    "ruff>=0.17.4",
+    "types-pyyaml>=6.0.12.20261111",
+]
